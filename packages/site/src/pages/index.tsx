@@ -1,9 +1,12 @@
-import { useContext } from 'react';
+import {useContext, useState} from 'react';
 import styled from 'styled-components';
 import { MetamaskActions, MetaMaskContext } from '../hooks';
 import {
   connectSnap,
   getSnap,
+  getStore,
+  clearStore,
+  handleRequest,
   sendHello,
   shouldDisplayReconnectButton,
 } from '../utils';
@@ -12,7 +15,7 @@ import {
   InstallFlaskButton,
   ReconnectButton,
   SendHelloButton,
-  Card,
+  Card, TextButton,
 } from '../components';
 
 const Container = styled.div`
@@ -101,6 +104,20 @@ const ErrorMessage = styled.div`
 
 const Index = () => {
   const [state, dispatch] = useContext(MetaMaskContext);
+  const [requestBase64, setRequestBase64] = useState(
+    'eyJpZCI6ImZiN2FkNWQyLTViNTAtNDVkYS04YjgwLTczMTcxZTIxN2Y3NCIsInR5cCI6ImFwcGxpY2F0aW9uL2lkZW4zY29tbS1wbGFpbi1qc29uIiwidHlwZSI6Imh0dHBzOi8vaWRlbjMtY29tbXVuaWNhdGlvbi5pby9hdXRob3JpemF0aW9uLzEuMC9yZXF1ZXN0IiwidGhpZCI6ImZiN2FkNWQyLTViNTAtNDVkYS04YjgwLTczMTcxZTIxN2Y3NCIsImJvZHkiOnsiY2FsbGJhY2tVcmwiOiJodHRwczovL2lzc3Vlci12Mi5wb2x5Z29uaWQubWUvYXBpL2NhbGxiYWNrP3Nlc3Npb25JZD05NDY3NjIiLCJyZWFzb24iOiJ0ZXN0IGZsb3ciLCJzY29wZSI6W119LCJmcm9tIjoiZGlkOnBvbHlnb25pZDpwb2x5Z29uOm11bWJhaToycUo2ODlrcG9KeGNTekI1c0FGSnRQc1NCU3JIRjVkcTcyMkJITXFVUkwifQ==',
+  );
+
+  const handleSendRequestClick = async () => {
+    try {
+      // setCurrentChainId(await getCurrentNetwork());
+      const result = await handleRequest(requestBase64);
+      console.log(result);
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: MetamaskActions.SetError, payload: e });
+    }
+  };
 
   const handleConnectClick = async () => {
     try {
@@ -120,6 +137,26 @@ const Index = () => {
   const handleSendHelloClick = async () => {
     try {
       await sendHello();
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: MetamaskActions.SetError, payload: e });
+    }
+  };
+
+  const handleGetStore = async () => {
+    try {
+      const res = await getStore();
+      console.log(res);
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: MetamaskActions.SetError, payload: e });
+    }
+  };
+
+  const handleClearStore = async () => {
+    try {
+      const res = await clearStore();
+      console.log(res);
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });
@@ -193,6 +230,78 @@ const Index = () => {
                 onClick={handleSendHelloClick}
                 disabled={!state.installedSnap}
               />
+            ),
+          }}
+          disabled={!state.installedSnap}
+          fullWidth={
+            state.isFlask &&
+            Boolean(state.installedSnap) &&
+            !shouldDisplayReconnectButton(state.installedSnap)
+          }
+        />
+        <Card
+          content={{
+            title: 'get store',
+            description: 'get store',
+            button: (
+              <TextButton
+                text={'get Store'}
+                onClick={handleGetStore}
+                disabled={!state.installedSnap}
+              />
+            ),
+          }}
+          disabled={!state.installedSnap}
+          fullWidth={
+            state.isFlask &&
+            Boolean(state.installedSnap) &&
+            !shouldDisplayReconnectButton(state.installedSnap)
+          }
+        />
+        <Card
+          content={{
+            title: 'clear store',
+            description: 'clear store',
+            button: (
+              <TextButton
+                text={'clear Store'}
+                onClick={handleClearStore}
+                disabled={!state.installedSnap}
+              />
+            ),
+          }}
+          disabled={!state.installedSnap}
+          fullWidth={
+            state.isFlask &&
+            Boolean(state.installedSnap) &&
+            !shouldDisplayReconnectButton(state.installedSnap)
+          }
+        />
+        <Card
+          content={{
+            title: 'Send request',
+            description: 'base 64',
+            button: (
+              <SendHelloButton
+                buttonText="Send message"
+                onClick={handleSendRequestClick}
+                disabled={!state.installedSnap}
+              />
+            ),
+            form: (
+              <form>
+                <label>
+                  Enter request
+                  <textarea
+                    rows={15}
+                    // type="text"
+                    style={{ width: '100%' }}
+                    value={requestBase64}
+                    onChange={(e) => setRequestBase64(e.target.value)}
+                  />
+                </label>
+                <br />
+              </form>
             ),
           }}
           disabled={!state.installedSnap}

@@ -1,4 +1,20 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src"]
+  "compilerOptions": {
+    "allowJs": true,
+    "noImplicitAny": true,
+    "experimentalDecorators": true,
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "typeRoots": ["./node_modules/@types", "../../node_modules/@types"],
+    "sourceMap": true,
+    "target": "ES2018",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "files": ["./global.d.ts", "./json-typings.d.ts"],
+  "include": ["src/**/*", "tests/**/*", "global.d.ts"]
 }
